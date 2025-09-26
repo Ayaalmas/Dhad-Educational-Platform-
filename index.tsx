@@ -1,5 +1,14 @@
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+
+// Fix: Add types for YouTube Iframe API
+declare global {
+  interface Window {
+    YT: any;
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
 
 const svgIcons = {
   arabic: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.5 4H5.5C4.12 4 3 5.12 3 6.5V17.5C3 18.88 4.12 20 5.5 20H18.5C19.88 20 21 18.88 21 17.5V6.5C21 5.12 19.88 4 18.5 4zM9 17v-4.5H7V11h5v1.5H10V17H9zm5-2.5c0 .83-.67 1.5-1.5 1.5S11 15.33 11 14.5s.67-1.5 1.5-1.5S14 13.67 14 14.5z"/></svg>,
@@ -785,8 +794,8 @@ const RegistrationView = ({ classes, onBackToMain }) => {
   });
   
   const [dobParts, setDobParts] = React.useState({ day: '', month: '', year: '' });
-  // FIX: Explicitly type the errors state object to allow dynamic properties
-  const [errors, setErrors] = React.useState<{ [key: string]: string }>({});
+  // Fix: Add type for errors state object
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
   
   // Date of Birth options
   const currentYear = new Date().getFullYear();
@@ -802,7 +811,8 @@ const RegistrationView = ({ classes, onBackToMain }) => {
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
   const validateAllFields = () => {
-    const newErrors: { [key: string]: string } = {};
+    // Fix: Add type for newErrors object
+    const newErrors: Record<string, string> = {};
     // Step 1 validation
     if (!formState.fullName.trim()) newErrors.fullName = 'الاسم الكامل مطلوب';
     else if (formState.fullName.trim().split(' ').length < 2) newErrors.fullName = 'الرجاء إدخال الاسم الكامل (اسمين على الأقل)';
@@ -862,7 +872,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const validationErrors = validateAllFields();
     setErrors(validationErrors);
@@ -887,10 +897,10 @@ const RegistrationView = ({ classes, onBackToMain }) => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e) => {
     const { name, value, type } = e.target;
     const isCheckbox = type === 'checkbox';
-    const checked = isCheckbox ? (e.target as HTMLInputElement).checked : false;
+    const checked = isCheckbox ? e.target.checked : false;
 
     setFormState(prevState => ({
       ...prevState,
@@ -906,7 +916,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
     }
   };
   
-  const handleDateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleDateChange = (e) => {
     const { name, value } = e.target;
     const newDobParts = { ...dobParts, [name]: value };
     setDobParts(newDobParts);
@@ -960,7 +970,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
           </div>
 
           <form className="registration-form" onSubmit={handleSubmit} noValidate>
-            {/* FIX: Cast style object with CSS custom properties to React.CSSProperties */}
+            {/* Fix: Cast style object to React.CSSProperties to allow custom properties */}
             <div className="form-steps-container" style={{'--current-step': currentStep} as React.CSSProperties}>
               <div className="form-step" data-step="1">
                 <div className="form-grid">
@@ -1090,9 +1100,9 @@ const Logo = ({ className, ...props }) => (
 );
 
 const App = () => {
-  const headerRef = React.useRef<HTMLElement>(null);
-  const navRef = React.useRef<HTMLElement>(null);
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const headerRef = React.useRef(null);
+  const navRef = React.useRef<HTMLDivElement>(null);
+  const canvasRef = React.useRef(null);
   
   // Data state
   const [classes, setClasses] = React.useState(classesData);
@@ -1115,7 +1125,7 @@ const App = () => {
   const [noResultsFound, setNoResultsFound] = React.useState(false);
 
   // Video player state
-  const [player, setPlayer] = React.useState<any>(null);
+  const [player, setPlayer] = React.useState(null);
   const [isVideoPlaying, setIsVideoPlaying] = React.useState(false);
 
   // Form state and validation
@@ -1149,7 +1159,7 @@ const App = () => {
   const [toast, setToast] = React.useState({ show: false, message: '', type: 'success' });
   const [showBackToTop, setShowBackToTop] = React.useState(false);
   
-  const classesListRef = React.useRef<HTMLDivElement>(null);
+  const classesListRef = React.useRef(null);
   const classItemRefs = React.useRef(new Map());
   const [scrollState, setScrollState] = React.useState({ canScrollPrev: false, canScrollNext: false });
 
@@ -1206,7 +1216,7 @@ const App = () => {
     }
   }, [selectedClassIndex]);
 
-  const handleScroll = (direction: 'prev' | 'next') => {
+  const handleScroll = (direction) => {
     const container = classesListRef.current;
     if (container) {
       const scrollAmount = container.offsetWidth * 0.8;
@@ -1257,7 +1267,7 @@ const App = () => {
     { code: '+968', name: 'عُمان' },
   ];
 
-  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleSmoothScroll = (e) => {
     e.preventDefault();
     const href = e.currentTarget.getAttribute('href');
     if (!href || href === '#') return;
@@ -1284,7 +1294,7 @@ const App = () => {
     }
   };
 
-  const handleMobileLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMobileLinkClick = (e) => {
     handleSmoothScroll(e);
     setIsMobileMenuOpen(false);
   };
@@ -1354,8 +1364,7 @@ const App = () => {
     if (currentView !== 'main') return; 
 
     const onYouTubeIframeAPIReady = () => {
-      // FIX: Cast window to any to access YT property
-      const newPlayer = new (window as any).YT.Player('youtube-player', {
+      const newPlayer = new window.YT.Player('youtube-player', {
         videoId: '9RJKoxZ1b50',
         playerVars: {
           autoplay: 0,
@@ -1375,8 +1384,7 @@ const App = () => {
             event.target.mute();
           },
           onStateChange: (event) => {
-            // FIX: Cast window to any to access YT property
-            const YT = (window as any).YT;
+            const YT = window.YT;
             if (YT && event.data === YT.PlayerState.PLAYING) {
               setIsVideoPlaying(true);
             } else if (YT && (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED)) {
@@ -1387,15 +1395,13 @@ const App = () => {
       });
     };
 
-    // FIX: Cast window to any to access YT property
-    if (!(window as any).YT || !(window as any).YT.Player) {
+    if (!window.YT || !window.YT.Player) {
       const tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName('script')[0];
       if (firstScriptTag && firstScriptTag.parentNode) {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        // FIX: Cast window to any to access onYouTubeIframeAPIReady property
-        (window as any).onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
       }
     } else {
       onYouTubeIframeAPIReady();
@@ -1409,27 +1415,21 @@ const App = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
-    let particles: Particle[] = [];
+    let animationFrameId;
+    let particles = [];
 
-    const random = (min: number, max: number) => Math.random() * (max - min) + min;
+    const random = (min, max) => Math.random() * (max - min) + min;
 
+    // Fix: Declare class properties and their types using constructor shorthand
     class Particle {
-        x: number;
-        y: number;
-        radius: number;
-        color: string;
-        speedX: number;
-        speedY: number;
-
-        constructor(x: number, y: number, radius: number, color: string, speedX: number, speedY: number) {
-            this.x = x;
-            this.y = y;
-            this.radius = radius;
-            this.color = color;
-            this.speedX = speedX;
-            this.speedY = speedY;
-        }
+        constructor(
+            public x: number,
+            public y: number,
+            public radius: number,
+            public color: string,
+            public speedX: number,
+            public speedY: number,
+        ) {}
 
         draw() {
             if (!ctx) return;
@@ -1531,7 +1531,7 @@ const App = () => {
     const navLinks = Array.from(document.querySelectorAll('nav a[href^="#"]'));
     if (sections.length === 0 || navLinks.length === 0) return;
     
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+    const observerCallback = (entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const id = entry.target.getAttribute('id');
@@ -1541,10 +1541,10 @@ const App = () => {
               link.classList.add('active');
             }
           });
-          const desktopLink = navRef.current?.querySelector(`a[href="#${id}"]`);
+          // Fix: Cast the querySelector result to HTMLElement to access offset properties
+          const desktopLink = navRef.current?.querySelector(`a[href="#${id}"]`) as HTMLElement;
           if (desktopLink) {
-            // FIX: Cast element to HTMLElement to access offsetLeft and offsetWidth
-            const { offsetLeft, offsetWidth } = desktopLink as HTMLElement;
+            const { offsetLeft, offsetWidth } = desktopLink;
             setIndicatorStyle({ left: `${offsetLeft}px`, width: `${offsetWidth}px`, opacity: 1 });
           }
         }
@@ -1558,9 +1558,10 @@ const App = () => {
     sections.forEach(section => observer.observe(section));
 
     setTimeout(() => {
-        const initialActiveLink = document.querySelector('.header-nav-desktop a.active') || document.querySelector('.header-nav-desktop a');
+        // Fix: Cast querySelector result to HTMLElement
+        const initialActiveLink = (document.querySelector('.header-nav-desktop a.active') || document.querySelector('.header-nav-desktop a')) as HTMLElement;
         if (initialActiveLink) {
-            const { offsetLeft, offsetWidth } = initialActiveLink as HTMLElement;
+            const { offsetLeft, offsetWidth } = initialActiveLink;
             setIndicatorStyle({ left: `${offsetLeft}px`, width: `${offsetWidth}px`, opacity: 1 });
         }
     }, 100);
@@ -1574,9 +1575,10 @@ const App = () => {
     if (currentView !== 'main' || !navRef.current) return;
 
     const handleResize = () => {
-        const activeLink = navRef.current?.querySelector('a.active');
+        // Fix: Cast querySelector result to HTMLElement
+        const activeLink = navRef.current?.querySelector('a.active') as HTMLElement;
         if (activeLink) {
-            const { offsetLeft, offsetWidth } = activeLink as HTMLElement;
+            const { offsetLeft, offsetWidth } = activeLink;
             setIndicatorStyle({ transition: 'none', left: `${offsetLeft}px`, width: `${offsetWidth}px`, opacity: 1 });
             setTimeout(() => {
               setIndicatorStyle(prev => ({ ...prev, transition: '' }));
@@ -1724,7 +1726,7 @@ const App = () => {
   }, [activeSearchTerm, classes, courses]);
 
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e) => {
     e.preventDefault();
     const trimmedQuery = searchQuery.trim();
     
@@ -1764,7 +1766,7 @@ const App = () => {
   const handleClearSearch = () => {
     setSearchQuery('');
     setActiveSearchTerm('');
-    // FIX: Cast element to HTMLElement to call focus method
+    // Fix: Cast querySelector result to HTMLElement to access focus method
     (document.querySelector('.hero-search-input') as HTMLElement)?.focus();
   };
 
@@ -1778,13 +1780,13 @@ const App = () => {
                  course.category.toLowerCase().includes(term);
       });
 
-  const validatePhoneNumber = (phone: string) => {
+  const validatePhoneNumber = (phone) => {
     if (!phone) return false;
     const phoneRegex = /^[0-9]{7,15}$/;
     return phoneRegex.test(phone);
   };
 
-  const validateEmail = (email: string) => {
+  const validateEmail = (email) => {
     if (!email) return false;
     // A more comprehensive regex for email validation
     const emailRegex = new RegExp(
@@ -1793,7 +1795,7 @@ const App = () => {
     return emailRegex.test(String(email).toLowerCase());
   };
 
-  const handleContactSubmit = async (e: React.FormEvent) => {
+  const handleContactSubmit = async (e) => {
     e.preventDefault();
     
     // Reset errors
@@ -1841,14 +1843,14 @@ const App = () => {
       setContactWhatsapp('');
       setContactCountryCode('+963');
 
-    } catch (error: any) {
+    } catch (error) {
         showToast(error.message || 'حدث خطأ ما. يرجى التحقق من اتصالك بالإنترنت.', 'error');
     } finally {
         setIsContactSubmitting(false);
     }
   };
 
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     
     // Reset errors
@@ -1888,14 +1890,14 @@ const App = () => {
 
       closeRegisterModal();
       showToast('تم إرسال طلب التسجيل بنجاح!', 'success');
-    } catch (error: any) {
+    } catch (error) {
         showToast(error.message || 'حدث خطأ ما. يرجى التحقق من اتصالك بالإنترنت.', 'error');
     } finally {
         setIsRegisterSubmitting(false);
     }
   };
   
-  const handleViewDetails = (item: any) => {
+  const handleViewDetails = (item) => {
     setDetailsViewItem(item);
     setCurrentView('subjects');
   };
@@ -1918,7 +1920,7 @@ const App = () => {
     }, 100);
   };
 
-  const handleRegisterForSubject = (subjectName: string) => {
+  const handleRegisterForSubject = (subjectName) => {
     if (!detailsViewItem) return;
     openRegisterModal(`تسجيل في: ${detailsViewItem.title} - ${subjectName}`, registrationSubtitle);
   };
@@ -2063,7 +2065,7 @@ const App = () => {
                               key={index}
                               className={`class-list-item ${index === selectedClassIndex ? 'active' : ''}`}
                               onClick={() => setSelectedClassIndex(index)}
-                              // FIX: Cast style object with CSS custom properties to React.CSSProperties
+                              // Fix: Cast style object to React.CSSProperties to allow custom properties
                               style={{
                                 '--class-color': cls.color,
                                 '--class-color-light': `${cls.color}20`
@@ -2089,7 +2091,7 @@ const App = () => {
                       </button>
                     </div>
                     {selectedClass && (
-                        // FIX: Cast style object with CSS custom properties to React.CSSProperties
+                        // Fix: Cast style object to React.CSSProperties to allow custom properties
                         <div className="class-details-panel" key={selectedClassIndex} style={{ '--class-color': selectedClass.color } as React.CSSProperties}>
                             <div className="class-details-header">
                               <div className="class-card-icon" style={{ backgroundColor: selectedClass.color }}>
