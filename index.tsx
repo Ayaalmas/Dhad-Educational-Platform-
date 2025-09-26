@@ -1,14 +1,7 @@
 
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-
-// Fix: Add types for YouTube Iframe API
-declare global {
-  interface Window {
-    YT: any;
-    onYouTubeIframeAPIReady: () => void;
-  }
-}
 
 const svgIcons = {
   arabic: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.5 4H5.5C4.12 4 3 5.12 3 6.5V17.5C3 18.88 4.12 20 5.5 20H18.5C19.88 20 21 18.88 21 17.5V6.5C21 5.12 19.88 4 18.5 4zM9 17v-4.5H7V11h5v1.5H10V17H9zm5-2.5c0 .83-.67 1.5-1.5 1.5S11 15.33 11 14.5s.67-1.5 1.5-1.5S14 13.67 14 14.5z"/></svg>,
@@ -794,8 +787,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
   });
   
   const [dobParts, setDobParts] = React.useState({ day: '', month: '', year: '' });
-  // Fix: Add type for errors state object
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
+  const [errors, setErrors] = React.useState({});
   
   // Date of Birth options
   const currentYear = new Date().getFullYear();
@@ -811,8 +803,8 @@ const RegistrationView = ({ classes, onBackToMain }) => {
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
   const validateAllFields = () => {
-    // Fix: Add type for newErrors object
-    const newErrors: Record<string, string> = {};
+    // FIX: Add type to newErrors to allow adding properties.
+    const newErrors: { [key: string]: string } = {};
     // Step 1 validation
     if (!formState.fullName.trim()) newErrors.fullName = 'الاسم الكامل مطلوب';
     else if (formState.fullName.trim().split(' ').length < 2) newErrors.fullName = 'الرجاء إدخال الاسم الكامل (اسمين على الأقل)';
@@ -970,8 +962,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
           </div>
 
           <form className="registration-form" onSubmit={handleSubmit} noValidate>
-            {/* Fix: Cast style object to React.CSSProperties to allow custom properties */}
-            <div className="form-steps-container" style={{'--current-step': currentStep} as React.CSSProperties}>
+            <div className="form-steps-container" style={{'--current-step': currentStep}}>
               <div className="form-step" data-step="1">
                 <div className="form-grid">
                   <div className={`form-group full-width ${errors.fullName ? 'has-error' : ''}`}>
@@ -1099,9 +1090,17 @@ const Logo = ({ className, ...props }) => (
   />
 );
 
+// FIX: Extend window interface for YouTube Iframe API
+declare global {
+  interface Window {
+    YT: any;
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
+
 const App = () => {
   const headerRef = React.useRef(null);
-  const navRef = React.useRef<HTMLDivElement>(null);
+  const navRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   
   // Data state
@@ -1420,16 +1419,23 @@ const App = () => {
 
     const random = (min, max) => Math.random() * (max - min) + min;
 
-    // Fix: Declare class properties and their types using constructor shorthand
     class Particle {
-        constructor(
-            public x: number,
-            public y: number,
-            public radius: number,
-            public color: string,
-            public speedX: number,
-            public speedY: number,
-        ) {}
+        // FIX: Declare class properties with types.
+        x: number;
+        y: number;
+        radius: number;
+        color: string;
+        speedX: number;
+        speedY: number;
+
+        constructor(x: number, y: number, radius: number, color: string, speedX: number, speedY: number) {
+            this.x = x;
+            this.y = y;
+            this.radius = radius;
+            this.color = color;
+            this.speedX = speedX;
+            this.speedY = speedY;
+        }
 
         draw() {
             if (!ctx) return;
@@ -1541,7 +1547,7 @@ const App = () => {
               link.classList.add('active');
             }
           });
-          // Fix: Cast the querySelector result to HTMLElement to access offset properties
+          // FIX: Cast element to HTMLElement to access offset properties.
           const desktopLink = navRef.current?.querySelector(`a[href="#${id}"]`) as HTMLElement;
           if (desktopLink) {
             const { offsetLeft, offsetWidth } = desktopLink;
@@ -1558,8 +1564,8 @@ const App = () => {
     sections.forEach(section => observer.observe(section));
 
     setTimeout(() => {
-        // Fix: Cast querySelector result to HTMLElement
-        const initialActiveLink = (document.querySelector('.header-nav-desktop a.active') || document.querySelector('.header-nav-desktop a')) as HTMLElement;
+        // FIX: Cast element to HTMLElement to access offset properties.
+        const initialActiveLink = (document.querySelector('.header-nav-desktop a.active') || document.querySelector('.header-nav-desktop a')) as HTMLElement | null;
         if (initialActiveLink) {
             const { offsetLeft, offsetWidth } = initialActiveLink;
             setIndicatorStyle({ left: `${offsetLeft}px`, width: `${offsetWidth}px`, opacity: 1 });
@@ -1575,8 +1581,8 @@ const App = () => {
     if (currentView !== 'main' || !navRef.current) return;
 
     const handleResize = () => {
-        // Fix: Cast querySelector result to HTMLElement
-        const activeLink = navRef.current?.querySelector('a.active') as HTMLElement;
+        // FIX: Cast element to HTMLElement to access offset properties.
+        const activeLink = navRef.current?.querySelector('a.active') as HTMLElement | null;
         if (activeLink) {
             const { offsetLeft, offsetWidth } = activeLink;
             setIndicatorStyle({ transition: 'none', left: `${offsetLeft}px`, width: `${offsetWidth}px`, opacity: 1 });
@@ -1766,7 +1772,7 @@ const App = () => {
   const handleClearSearch = () => {
     setSearchQuery('');
     setActiveSearchTerm('');
-    // Fix: Cast querySelector result to HTMLElement to access focus method
+    // FIX: Cast element to HTMLElement to call focus method.
     (document.querySelector('.hero-search-input') as HTMLElement)?.focus();
   };
 
@@ -2065,11 +2071,10 @@ const App = () => {
                               key={index}
                               className={`class-list-item ${index === selectedClassIndex ? 'active' : ''}`}
                               onClick={() => setSelectedClassIndex(index)}
-                              // Fix: Cast style object to React.CSSProperties to allow custom properties
                               style={{
                                 '--class-color': cls.color,
                                 '--class-color-light': `${cls.color}20`
-                              } as React.CSSProperties}
+                              }}
                                ref={node => {
                                 const map = classItemRefs.current;
                                 if (node) map.set(index, node);
@@ -2091,8 +2096,7 @@ const App = () => {
                       </button>
                     </div>
                     {selectedClass && (
-                        // Fix: Cast style object to React.CSSProperties to allow custom properties
-                        <div className="class-details-panel" key={selectedClassIndex} style={{ '--class-color': selectedClass.color } as React.CSSProperties}>
+                        <div className="class-details-panel" key={selectedClassIndex} style={{ '--class-color': selectedClass.color }}>
                             <div className="class-details-header">
                               <div className="class-card-icon" style={{ backgroundColor: selectedClass.color }}>
                                   {selectedClass.icon}
