@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -545,7 +543,7 @@ const coursesData = [
     {
       "iconSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2zm18-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H8v-2h4V8h2v4h4v2z\"/></svg>",
       "gradient": "gradient-compensatory",
-      "category": "التعليم التعويضي المسرّع",
+      "category": "التعليم التعويضي المسرّc",
       "title": "برنامج الصف الثامن التعويضي",
       "details": "يشمل (العربية، رياضيات، فيزياء وكيمياء، علوم أحياء)",
       "color": "#00796B",
@@ -787,8 +785,8 @@ const RegistrationView = ({ classes, onBackToMain }) => {
   });
   
   const [dobParts, setDobParts] = React.useState({ day: '', month: '', year: '' });
-  // FIX: Provide a type for the errors state object to allow property access.
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
+  // FIX: Explicitly type the errors state object to allow dynamic properties
+  const [errors, setErrors] = React.useState<{ [key: string]: string }>({});
   
   // Date of Birth options
   const currentYear = new Date().getFullYear();
@@ -804,8 +802,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
   const validateAllFields = () => {
-    // FIX: Provide a type for the newErrors object to allow adding properties.
-    const newErrors: Record<string, string> = {};
+    const newErrors: { [key: string]: string } = {};
     // Step 1 validation
     if (!formState.fullName.trim()) newErrors.fullName = 'الاسم الكامل مطلوب';
     else if (formState.fullName.trim().split(' ').length < 2) newErrors.fullName = 'الرجاء إدخال الاسم الكامل (اسمين على الأقل)';
@@ -865,7 +862,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validateAllFields();
     setErrors(validationErrors);
@@ -890,10 +887,10 @@ const RegistrationView = ({ classes, onBackToMain }) => {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const isCheckbox = type === 'checkbox';
-    const checked = isCheckbox ? e.target.checked : false;
+    const checked = isCheckbox ? (e.target as HTMLInputElement).checked : false;
 
     setFormState(prevState => ({
       ...prevState,
@@ -909,7 +906,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
     }
   };
   
-  const handleDateChange = (e) => {
+  const handleDateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     const newDobParts = { ...dobParts, [name]: value };
     setDobParts(newDobParts);
@@ -963,7 +960,7 @@ const RegistrationView = ({ classes, onBackToMain }) => {
           </div>
 
           <form className="registration-form" onSubmit={handleSubmit} noValidate>
-            {/* FIX: Cast style object to React.CSSProperties to allow custom CSS property. */}
+            {/* FIX: Cast style object with CSS custom properties to React.CSSProperties */}
             <div className="form-steps-container" style={{'--current-step': currentStep} as React.CSSProperties}>
               <div className="form-step" data-step="1">
                 <div className="form-grid">
@@ -1093,9 +1090,9 @@ const Logo = ({ className, ...props }) => (
 );
 
 const App = () => {
-  const headerRef = React.useRef(null);
-  const navRef = React.useRef(null);
-  const canvasRef = React.useRef(null);
+  const headerRef = React.useRef<HTMLElement>(null);
+  const navRef = React.useRef<HTMLElement>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   
   // Data state
   const [classes, setClasses] = React.useState(classesData);
@@ -1118,7 +1115,7 @@ const App = () => {
   const [noResultsFound, setNoResultsFound] = React.useState(false);
 
   // Video player state
-  const [player, setPlayer] = React.useState(null);
+  const [player, setPlayer] = React.useState<any>(null);
   const [isVideoPlaying, setIsVideoPlaying] = React.useState(false);
 
   // Form state and validation
@@ -1152,7 +1149,7 @@ const App = () => {
   const [toast, setToast] = React.useState({ show: false, message: '', type: 'success' });
   const [showBackToTop, setShowBackToTop] = React.useState(false);
   
-  const classesListRef = React.useRef(null);
+  const classesListRef = React.useRef<HTMLDivElement>(null);
   const classItemRefs = React.useRef(new Map());
   const [scrollState, setScrollState] = React.useState({ canScrollPrev: false, canScrollNext: false });
 
@@ -1209,7 +1206,7 @@ const App = () => {
     }
   }, [selectedClassIndex]);
 
-  const handleScroll = (direction) => {
+  const handleScroll = (direction: 'prev' | 'next') => {
     const container = classesListRef.current;
     if (container) {
       const scrollAmount = container.offsetWidth * 0.8;
@@ -1260,7 +1257,7 @@ const App = () => {
     { code: '+968', name: 'عُمان' },
   ];
 
-  const handleSmoothScroll = (e) => {
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const href = e.currentTarget.getAttribute('href');
     if (!href || href === '#') return;
@@ -1287,7 +1284,7 @@ const App = () => {
     }
   };
 
-  const handleMobileLinkClick = (e) => {
+  const handleMobileLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     handleSmoothScroll(e);
     setIsMobileMenuOpen(false);
   };
@@ -1357,7 +1354,7 @@ const App = () => {
     if (currentView !== 'main') return; 
 
     const onYouTubeIframeAPIReady = () => {
-      // FIX: Cast window to any to access the YouTube Iframe API.
+      // FIX: Cast window to any to access YT property
       const newPlayer = new (window as any).YT.Player('youtube-player', {
         videoId: '9RJKoxZ1b50',
         playerVars: {
@@ -1378,7 +1375,7 @@ const App = () => {
             event.target.mute();
           },
           onStateChange: (event) => {
-            // FIX: Cast window to any to access YT property.
+            // FIX: Cast window to any to access YT property
             const YT = (window as any).YT;
             if (YT && event.data === YT.PlayerState.PLAYING) {
               setIsVideoPlaying(true);
@@ -1390,14 +1387,14 @@ const App = () => {
       });
     };
 
-    // FIX: Cast window to any to check for YT object.
+    // FIX: Cast window to any to access YT property
     if (!(window as any).YT || !(window as any).YT.Player) {
       const tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName('script')[0];
       if (firstScriptTag && firstScriptTag.parentNode) {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        // FIX: Cast window to any to set onYouTubeIframeAPIReady property.
+        // FIX: Cast window to any to access onYouTubeIframeAPIReady property
         (window as any).onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
       }
     } else {
@@ -1412,20 +1409,20 @@ const App = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId;
-    let particles = [];
+    let animationFrameId: number;
+    let particles: Particle[] = [];
 
-    const random = (min, max) => Math.random() * (max - min) + min;
+    const random = (min: number, max: number) => Math.random() * (max - min) + min;
 
     class Particle {
-        x;
-        y;
-        radius;
-        color;
-        speedX;
-        speedY;
+        x: number;
+        y: number;
+        radius: number;
+        color: string;
+        speedX: number;
+        speedY: number;
 
-        constructor(x, y, radius, color, speedX, speedY) {
+        constructor(x: number, y: number, radius: number, color: string, speedX: number, speedY: number) {
             this.x = x;
             this.y = y;
             this.radius = radius;
@@ -1534,7 +1531,7 @@ const App = () => {
     const navLinks = Array.from(document.querySelectorAll('nav a[href^="#"]'));
     if (sections.length === 0 || navLinks.length === 0) return;
     
-    const observerCallback = (entries) => {
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const id = entry.target.getAttribute('id');
@@ -1544,10 +1541,10 @@ const App = () => {
               link.classList.add('active');
             }
           });
-          // FIX: Cast querySelector result to HTMLElement to access offset properties.
-          const desktopLink = navRef.current?.querySelector(`a[href="#${id}"]`) as HTMLElement;
+          const desktopLink = navRef.current?.querySelector(`a[href="#${id}"]`);
           if (desktopLink) {
-            const { offsetLeft, offsetWidth } = desktopLink;
+            // FIX: Cast element to HTMLElement to access offsetLeft and offsetWidth
+            const { offsetLeft, offsetWidth } = desktopLink as HTMLElement;
             setIndicatorStyle({ left: `${offsetLeft}px`, width: `${offsetWidth}px`, opacity: 1 });
           }
         }
@@ -1561,10 +1558,9 @@ const App = () => {
     sections.forEach(section => observer.observe(section));
 
     setTimeout(() => {
-        // FIX: Cast querySelector result to HTMLElement to access offset properties.
-        const initialActiveLink = (document.querySelector('.header-nav-desktop a.active') || document.querySelector('.header-nav-desktop a')) as HTMLElement;
+        const initialActiveLink = document.querySelector('.header-nav-desktop a.active') || document.querySelector('.header-nav-desktop a');
         if (initialActiveLink) {
-            const { offsetLeft, offsetWidth } = initialActiveLink;
+            const { offsetLeft, offsetWidth } = initialActiveLink as HTMLElement;
             setIndicatorStyle({ left: `${offsetLeft}px`, width: `${offsetWidth}px`, opacity: 1 });
         }
     }, 100);
@@ -1578,10 +1574,9 @@ const App = () => {
     if (currentView !== 'main' || !navRef.current) return;
 
     const handleResize = () => {
-        // FIX: Cast querySelector result to HTMLElement to access offset properties.
-        const activeLink = navRef.current?.querySelector('a.active') as HTMLElement;
+        const activeLink = navRef.current?.querySelector('a.active');
         if (activeLink) {
-            const { offsetLeft, offsetWidth } = activeLink;
+            const { offsetLeft, offsetWidth } = activeLink as HTMLElement;
             setIndicatorStyle({ transition: 'none', left: `${offsetLeft}px`, width: `${offsetWidth}px`, opacity: 1 });
             setTimeout(() => {
               setIndicatorStyle(prev => ({ ...prev, transition: '' }));
@@ -1729,7 +1724,7 @@ const App = () => {
   }, [activeSearchTerm, classes, courses]);
 
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedQuery = searchQuery.trim();
     
@@ -1769,7 +1764,7 @@ const App = () => {
   const handleClearSearch = () => {
     setSearchQuery('');
     setActiveSearchTerm('');
-    // FIX: Cast querySelector result to HTMLElement to call focus method.
+    // FIX: Cast element to HTMLElement to call focus method
     (document.querySelector('.hero-search-input') as HTMLElement)?.focus();
   };
 
@@ -1783,13 +1778,13 @@ const App = () => {
                  course.category.toLowerCase().includes(term);
       });
 
-  const validatePhoneNumber = (phone) => {
+  const validatePhoneNumber = (phone: string) => {
     if (!phone) return false;
     const phoneRegex = /^[0-9]{7,15}$/;
     return phoneRegex.test(phone);
   };
 
-  const validateEmail = (email) => {
+  const validateEmail = (email: string) => {
     if (!email) return false;
     // A more comprehensive regex for email validation
     const emailRegex = new RegExp(
@@ -1798,7 +1793,7 @@ const App = () => {
     return emailRegex.test(String(email).toLowerCase());
   };
 
-  const handleContactSubmit = async (e) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Reset errors
@@ -1846,14 +1841,14 @@ const App = () => {
       setContactWhatsapp('');
       setContactCountryCode('+963');
 
-    } catch (error) {
+    } catch (error: any) {
         showToast(error.message || 'حدث خطأ ما. يرجى التحقق من اتصالك بالإنترنت.', 'error');
     } finally {
         setIsContactSubmitting(false);
     }
   };
 
-  const handleRegisterSubmit = async (e) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Reset errors
@@ -1893,14 +1888,14 @@ const App = () => {
 
       closeRegisterModal();
       showToast('تم إرسال طلب التسجيل بنجاح!', 'success');
-    } catch (error) {
+    } catch (error: any) {
         showToast(error.message || 'حدث خطأ ما. يرجى التحقق من اتصالك بالإنترنت.', 'error');
     } finally {
         setIsRegisterSubmitting(false);
     }
   };
   
-  const handleViewDetails = (item) => {
+  const handleViewDetails = (item: any) => {
     setDetailsViewItem(item);
     setCurrentView('subjects');
   };
@@ -1923,7 +1918,7 @@ const App = () => {
     }, 100);
   };
 
-  const handleRegisterForSubject = (subjectName) => {
+  const handleRegisterForSubject = (subjectName: string) => {
     if (!detailsViewItem) return;
     openRegisterModal(`تسجيل في: ${detailsViewItem.title} - ${subjectName}`, registrationSubtitle);
   };
@@ -2068,8 +2063,8 @@ const App = () => {
                               key={index}
                               className={`class-list-item ${index === selectedClassIndex ? 'active' : ''}`}
                               onClick={() => setSelectedClassIndex(index)}
+                              // FIX: Cast style object with CSS custom properties to React.CSSProperties
                               style={{
-                                // FIX: Cast style object to React.CSSProperties to allow custom properties.
                                 '--class-color': cls.color,
                                 '--class-color-light': `${cls.color}20`
                               } as React.CSSProperties}
@@ -2094,6 +2089,7 @@ const App = () => {
                       </button>
                     </div>
                     {selectedClass && (
+                        // FIX: Cast style object with CSS custom properties to React.CSSProperties
                         <div className="class-details-panel" key={selectedClassIndex} style={{ '--class-color': selectedClass.color } as React.CSSProperties}>
                             <div className="class-details-header">
                               <div className="class-card-icon" style={{ backgroundColor: selectedClass.color }}>
